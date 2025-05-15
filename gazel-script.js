@@ -646,15 +646,29 @@ function decodeStripeReferenceId(encodedId) {
   }
   
   // Update elements with API response data
-  function updateElementsFromRealAPI(apiResponse) {
+function updateElementsFromRealAPI(apiResponse) {
+    const userId = sessionStorage.getItem('userId') || getShortUserIdentifier();
+    // Fetch results
+    const resultsRes = await fetch('https://api.gazel.ai/api/v1/full_results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: userId })
+    });
+
+    if (!resultsRes.ok) {
+        throw new Error(`Failed to fetch results: ${resultsRes.status}`);
+    }
+
+    const results = await resultsRes.json();
+
     // Check for data structure
-    if (!apiResponse || !apiResponse.data) {
-      console.error('[Gazel] Invalid API response structure:', apiResponse);
+    if (!results || !results.data) {
+        console.error('[Gazel] Invalid API response structure:', results);
       simulateScores();
       return;
-    }
+      }
     
-    const data = apiResponse.data;
+    const data = results.data;
     
     // Check for required categories
     const requiredCategories = ["Target Audience", "Messaging", "Credibility", "User Experience"];
