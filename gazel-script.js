@@ -600,8 +600,9 @@ function decodeStripeReferenceId(encodedId) {
     
     if (resultsJson && usingRealData) {
       try {
-        const apiResponse = JSON.parse(resultsJson);
-        updateElementsFromRealAPI(apiResponse);
+          const apiResponse = JSON.parse(resultsJson);
+          console.warn('begin full data load');
+        updateElementsFromRealAPI();
       } catch (error) {
         console.error('[Gazel] Error parsing API results:', error);
         simulateScores(); // Fallback to simulation
@@ -648,14 +649,20 @@ function decodeStripeReferenceId(encodedId) {
   // Update elements with API response data
 async function updateElementsFromRealAPI(apiResponse) {
     const userId = sessionStorage.getItem('userId') || getShortUserIdentifier();
-    console.warn("userId = " + sessionStorage);
+    console.warn("userId = " + sessionStorage.toString());
     // Fetch results
-    const resultsRes = await fetch('https://api.gazel.ai/api/v1/full_results', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: userId })
-    });
-    console.warn(resultsRes);
+    let resultsRes;
+    if (!apiResponse) {
+        resultsRes = await fetch('https://api.gazel.ai/api/v1/full_results', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: userId })
+        });
+        console.warn(resultsRes.toString());
+    }
+    else {
+        resultsRes = apiResponse;
+    }
 
     sessionStorage.setItem('seoAnalysisFullResults', JSON.stringify(resultsRes));
 
@@ -766,7 +773,8 @@ function simulateScores() {
   
   // Create simulated data using the same function as the API fallback
   const simulatedData = createSimulatedAPIResponse(sessionStorage.getItem('analyzedUrl') || 'example.com');
-  
+
+    console.warn('begin simulation data load');
   // Use the same function that processes real API data
   updateElementsFromRealAPI(simulatedData);
   
