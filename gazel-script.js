@@ -655,6 +655,8 @@ async function updateElementsFromRealAPI(apiResponse) {
         body: JSON.stringify({ id: userId })
     });
 
+    sessionStorage.setItem('seoAnalysisFullResults', JSON.stringify(resultsRes));
+
     if (!resultsRes.ok) {
         throw new Error(`Failed to fetch results: ${resultsRes.status}`);
     }
