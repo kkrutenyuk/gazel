@@ -648,12 +648,14 @@ function decodeStripeReferenceId(encodedId) {
   // Update elements with API response data
 async function updateElementsFromRealAPI(apiResponse) {
     const userId = sessionStorage.getItem('userId') || getShortUserIdentifier();
+    console.warn("userId = " + sessionStorage);
     // Fetch results
     const resultsRes = await fetch('https://api.gazel.ai/api/v1/full_results', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: userId })
     });
+    console.warn(resultsRes);
 
     sessionStorage.setItem('seoAnalysisFullResults', JSON.stringify(resultsRes));
 
