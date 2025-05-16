@@ -365,6 +365,11 @@ function decodeStripeReferenceId(encodedId) {
       try {
         const apiResponse = JSON.parse(resultsJson);
         // Display preview data from the API response
+        updateScore('score-overall', apiResponse.data["overall-score"]);
+        updateScore('score-audience', apiResponse.data["audience-score"]);
+        updateScore('score-messaging', apiResponse.data["messaging-score"]);
+        updateScore('score-credibility', apiResponse.data["credibility-score"]);
+        updateScore('score-ux', apiResponse.data["ux-score"]);
         // For example, show overall score or a summary
       } catch (error) {
         console.error('Error parsing results for preview:', error);
