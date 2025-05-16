@@ -670,6 +670,7 @@ async function updateElementsFromRealAPI(apiResponse) {
     }
 
     const results = await resultsRes.json();
+    console.warn(JSON.stringify(results));
 
     // Check for data structure
     if (!results || !results.data) {
