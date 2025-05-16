@@ -532,7 +532,7 @@ function decodeStripeReferenceId(encodedId) {
       success: true,
       message: "Analysis completed successfully (simulated)",
       data: {
-        "Target Audience": {
+        "target-audience": {
           score: getRandomScore(),
           summary: "Your site effectively targets your audience but could be more specific to industry verticals.",
           explanation: [
@@ -560,7 +560,7 @@ function decodeStripeReferenceId(encodedId) {
             }
           }
         },
-        "Messaging": {
+        "messaging": {
           score: getRandomScore(),
           summary: "Clear primary value proposition with opportunity to strengthen feature-to-benefit connections.",
           explanation: [
@@ -569,7 +569,7 @@ function decodeStripeReferenceId(encodedId) {
             "Product screenshots effectively showcase functionality, but could better highlight specific use cases."
           ]
         },
-        "Credibility": {
+        "credibility": {
           score: getRandomScore(),
           summary: "Strong social proof with customer logos and testimonials, but technical credibility could be enhanced.",
           explanation: [
@@ -578,7 +578,7 @@ function decodeStripeReferenceId(encodedId) {
             "Security badges and certifications appear below the fold rather than prominently in signup flows."
           ]
         },
-        "User Experience": {
+        "user-experience": {
           score: getRandomScore(),
           summary: "Clean navigation and visual hierarchy, with some mobile optimization opportunities.",
           explanation: [
@@ -600,13 +600,9 @@ function decodeStripeReferenceId(encodedId) {
     updateUrlDisplay(analyzedUrl);
     
     // Check if we have real API results
-    const resultsJson = sessionStorage.getItem('seoAnalysisResults');
-    const usingRealData = sessionStorage.getItem('usingRealData') === 'true';
-    
-    if (resultsJson && usingRealData) {
+    const usingRealData = sessionStorage.getItem('usingRealData') === 'true'; 
+    if (usingRealData) {
       try {
-          const apiResponse = JSON.parse(resultsJson);
-          console.warn('begin full data load');
         updateElementsFromRealAPI();
       } catch (error) {
         console.error('[Gazel] Error parsing API results:', error);
@@ -662,101 +658,69 @@ async function updateElementsFromRealAPI(apiResponse) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: userId })
         });
-        console.warn(JSON.stringify(resultsRes.data));
     }
     else {
         resultsRes = apiResponse;
     }
-
-    sessionStorage.setItem('seoAnalysisFullResults', JSON.stringify(resultsRes));
-
     if (!resultsRes.ok) {
         throw new Error(`Failed to fetch results: ${resultsRes.status}`);
     }
 
     const results = await resultsRes.json();
-    console.warn(JSON.stringify(results));
 
     // Check for data structure
     if (!results || !results.data) {
         console.error('[Gazel] Invalid API response structure:', results);
-      simulateScores();
-      return;
-      }
-    
-    const data = results.data;
-    
-    // Check for required categories
-    const requiredCategories = ["Target Audience", "Messaging", "Credibility", "User Experience"];
-    for (const category of requiredCategories) {
-      if (!data[category]) {
-        console.error(`[Gazel] Missing category in API response: ${category}`);
         simulateScores();
         return;
-      }
     }
-    
-    // Calculate overall score (average of all scores)
-    const overallScore = Math.round((
-      data["Target Audience"].score + 
-      data.Messaging.score + 
-      data.Credibility.score + 
-      data["User Experience"].score
-    ) / 4);
-    
-    // Update scores
-    updateScore('score-overall', overallScore);
-    updateScore('score-audience', data["Target Audience"].score);
-    updateScore('score-messaging', data.Messaging.score);
-    updateScore('score-credibility', data.Credibility.score);
-    updateScore('score-ux', data["User Experience"].score);
-    
-    // Update audience demographics
-    if (data["Target Audience"].demographics) {
-      if (data["Target Audience"].demographics.gender) {
-        updateElementContent('audience-men', data["Target Audience"].demographics.gender.male + '%');
-        updateElementContent('audience-women', data["Target Audience"].demographics.gender.female + '%');
-      }
-      
-      // Find the dominant age group (with highest percentage)
-      if (data["Target Audience"].demographics.age_groups) {
-        const ageGroups = data["Target Audience"].demographics.age_groups;
-        let maxPercentage = 0;
-        let dominantAgeGroup = '';
-        
-        for (const [ageRange, percentage] of Object.entries(ageGroups)) {
-          if (percentage > maxPercentage) {
-            maxPercentage = percentage;
-            dominantAgeGroup = ageRange;
-          }
+
+    const data = results.data;
+
+    // Check for required categories
+    const requiredCategories = ["target-audience", "messaging", "credibility", "user-experience"];
+    for (const category of requiredCategories) {
+        if (!data[category]) {
+            console.error(`[Gazel] Missing category in API response: ${category}`);
+            simulateScores();
+            return;
         }
-        
-        updateElementContent('audience-age-group', dominantAgeGroup);
-      }
-      
-      // Update social media percentages
-      if (data["Target Audience"].demographics.social_platforms) {
-        const platforms = data["Target Audience"].demographics.social_platforms;
-        updateElementContent('audience-facebook', platforms.facebook + '%');
-        updateElementContent('audience-instagram', platforms.instagram + '%');
-        updateElementContent('audience-x', platforms["x.com"] + '%');
-        updateElementContent('audience-reddit', platforms.reddit + '%');
-        updateElementContent('audience-linkedin', platforms.linkedin + '%');
-      }
     }
-    
+
+    // Update scores
+    updateScore('score-overall', data["overall-score"]);
+    updateScore('score-audience', data["target-audience"]["audience-score"]);
+    updateScore('score-messaging', data["messaging"]["messaging-score"]);
+    updateScore('score-credibility', data["credibility"]["credibility-score"]);
+    updateScore('score-ux', data["user-experience"]["ux-score"]);
+
+    // Update audience demographics
+    updateElementContent('audience-men', data["target-audience"]["audience-men"] + '%');
+    updateElementContent('audience-women', data["target-audience"]["audience-women"] + '%');
+    updateElementContent('audience-age-group', data["target-audience"]["audience-age_groups"]);
+
+    // Update social media percentages
+    if (data["target-audience"]["audience-social_platforms"]) {
+        const platforms = data["target-audience"]["audience-social_platforms"];
+        updateElementContent('audience-facebook', platforms["facebook"] + '%');
+        updateElementContent('audience-instagram', platforms["instagram"] + '%');
+        updateElementContent('audience-x', platforms["x.com"] + '%');
+        updateElementContent('audience-reddit', platforms["reddit"] + '%');
+        updateElementContent('audience-linkedin', platforms["linkedin"] + '%');
+    }
+
     // Update summaries
-    updateElementContent('audience-summary', data["Target Audience"].summary);
-    updateElementContent('messaging-summary', data.Messaging.summary);
-    updateElementContent('credibility-summary', data.Credibility.summary);
-    updateElementContent('ux-summary', data["User Experience"].summary);
-    
+    updateElementContent('audience-summary', data["target-audience"]["audience-summary"]);
+    updateElementContent('messaging-summary', data["messaging"]["messaging-summary"]);
+    updateElementContent('credibility-summary', data["credibility"]["credibility-summary"]);
+    updateElementContent('ux-summary', data["user-experience"]["ux-summary"]);
+
     // Update explanation points
-    updateExplanationPoints('audience', data["Target Audience"].explanation);
-    updateExplanationPoints('messaging', data.Messaging.explanation);
-    updateExplanationPoints('credibility', data.Credibility.explanation);
-    updateExplanationPoints('ux', data["User Experience"].explanation);
-  }
+    updateExplanationPoints('audience', data["target-audience"]["audience-explanation"]);
+    updateExplanationPoints('messaging', data["messaging"]["messaging-explanation"]);
+    updateExplanationPoints('credibility', data["credibility"]["credibility-explanation"]);
+    updateExplanationPoints('ux', data["user-experience"]["ux-explanation"]);
+}
   
  // Update explanation points for each category
  function updateExplanationPoints(category, explanations) {
@@ -779,7 +743,6 @@ function simulateScores() {
   // Create simulated data using the same function as the API fallback
   const simulatedData = createSimulatedAPIResponse(sessionStorage.getItem('analyzedUrl') || 'example.com');
 
-    console.warn('begin simulation data load');
   // Use the same function that processes real API data
   updateElementsFromRealAPI(simulatedData);
   
