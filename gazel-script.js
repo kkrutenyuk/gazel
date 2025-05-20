@@ -523,73 +523,72 @@ function decodeStripeReferenceId(encodedId) {
   }
   
   // Create simulated API response for development/testing
-  function createSimulatedAPIResponse(url) {
+function createSimulatedAPIResponse(url) {
     // Generate random scores between 65-95
     const getRandomScore = () => Math.floor(Math.random() * 30) + 65;
     const getRandomPercentage = () => Math.floor(Math.random() * 60) + 20; // 20-80%
-    
+
     return {
-      success: true,
-      message: "Analysis completed successfully (simulated)",
-      data: {
-        "target-audience": {
-          score: getRandomScore(),
-          summary: "Your site effectively targets your audience but could be more specific to industry verticals.",
-          explanation: [
-            "Demographics show male visitors aged 25-34 dominate your audience, matching your B2B SaaS focus.",
-            "Social traffic primarily comes from LinkedIn (35%) and X (28%), indicating good professional network engagement.",
-            "Your hero section could more clearly speak to specific industry pain points rather than using generic language."
-          ],
-          demographics: {
-            gender: {
-              male: getRandomPercentage(),
-              female: 100 - getRandomPercentage() // Ensures male + female = 100%
+        success: true,
+        message: "Analysis completed successfully (simulated)",
+        data: {
+            "Target Audience": {
+                "audience-score": getRandomScore(),
+                "audience-summary": "Your site effectively targets your audience but could be more specific to industry verticals.",
+                "audience-explanation": [
+                    "The website's minimalistic design ensures low visual clutter, contributing to a focused user experience. However, the lack of prominent trust elements like customer reviews or media badges slightly undermines credibility. For example, the absence of third-party logos or certifications may reduce perceived authority. While the content is concise, deeper engagement metrics like session duration could be improved. The straightforward hierarchy aids navigation but may oversimplify complex information.",
+                    "Demographic alignment is partially achieved, with imagery and messaging catering to a broad audience. However, specific age groups or niches may find the content too generic. The site avoids repetitive sections, maintaining user interest, but could benefit from more dynamic content updates. Mobile optimization is strong, yet some users might expect more personalized features. The balance between new and returning visitors suggests steady growth but not strong loyalty.",
+                    "Trust-building elements are underutilized, with few customer testimonials or media mentions highlighted. Security badges or partnerships are not prominently displayed, which could affect user confidence. The lack of detailed case studies or data-driven success metrics limits social proof. While the site is functional, adding trust signals would enhance credibility. Users seeking verified information might seek additional reassurance elsewhere.",
+                    "Content relevance is mixed, with core messaging aligning to general user needs but lacking depth for specific queries. The absence of niche-specific examples or tailored solutions may reduce engagement. While the site avoids fluff, some sections could benefit from more detailed explanations. Users expecting highly specialized information might find the content too surface-level. Improving topical depth could increase time-on-page metrics.",
+                    "User experience is streamlined but lacks advanced customization options. The clean layout supports ease of use but may feel impersonal to some audiences. Spacing and typography are consistent, though visual hierarchy could better guide user attention. Images are professional but generic, missing opportunities for audience-specific relatability. Enhancing interactive elements or personalized content paths could boost engagement."
+                ],
+                "audience-executive_summary": "While functionally effective, the website would benefit from enhanced trust signals, demographic-specific content, and deeper engagement features to improve audience alignment and retention.",
+                "audience-women": getRandomPercentage(),
+                "audience-men": 100 - getRandomPercentage(), // Ensures male + female = 100%
+                "audience-age_groups": {
+                    "18-24": Math.floor(Math.random() * 25),
+                    "25-34": Math.floor(Math.random() * 40),
+                    "35-44": Math.floor(Math.random() * 30),
+                    "45+": Math.floor(Math.random() * 25)
+                },
+                "audience-social_platforms": {
+                    "Facebook": 34,
+                    "Instagram": 28,
+                    "x.com": 18,
+                    "reddit": 12,
+                    "linkedin": 8
+                },
             },
-            age_groups: {
-              "18-24": Math.floor(Math.random() * 25),
-              "25-34": Math.floor(Math.random() * 40),
-              "35-44": Math.floor(Math.random() * 30),
-              "45+": Math.floor(Math.random() * 25)
+            "Messaging": {
+                "messaging-score": getRandomScore(),
+                "messaging-summary": "Clear primary value proposition with opportunity to strengthen feature-to-benefit connections.",
+                "messaging-explanation": [
+                    "Your headline clearly communicates the core problem you solve, though secondary headlines sometimes focus on features rather than outcomes.",
+                    "Case studies effectively demonstrate real-world results, but pricing page lacks sufficient social proof elements.",
+                    "Product screenshots effectively showcase functionality, but could better highlight specific use cases."
+                ]
             },
-            social_platforms: {
-              facebook: getRandomPercentage(),
-              instagram: getRandomPercentage(),
-              "x.com": getRandomPercentage(),
-              reddit: getRandomPercentage(),
-              linkedin: getRandomPercentage()
+            "Credibility": {
+                "credibility-score": getRandomScore(),
+                "credibility-summary": "Strong social proof with customer logos and testimonials, but technical credibility could be enhanced.",
+                "credibility-explanation": [
+                    "Client logos from recognized brands build immediate trust, particularly in the enterprise sector.",
+                    "Customer testimonials include good quantifiable results, but could feature more diverse industry representation.",
+                    "Security badges and certifications appear below the fold rather than prominently in signup flows."
+                ]
+            },
+            "User Experience": {
+                "ux-score": getRandomScore(),
+                "ux-summary": "Clean navigation and visual hierarchy, with some mobile optimization opportunities.",
+                "ux-explanation": [
+                    "Desktop experience features intuitive navigation and clear CTAs with proper visual hierarchy.",
+                    "Mobile menu requires optimization as dropdown items are difficult to tap accurately on smaller screens.",
+                    "Form fields lack inline validation which creates friction in signup and contact forms."
+                ]
             }
-          }
-        },
-        "messaging": {
-          score: getRandomScore(),
-          summary: "Clear primary value proposition with opportunity to strengthen feature-to-benefit connections.",
-          explanation: [
-            "Your headline clearly communicates the core problem you solve, though secondary headlines sometimes focus on features rather than outcomes.",
-            "Case studies effectively demonstrate real-world results, but pricing page lacks sufficient social proof elements.",
-            "Product screenshots effectively showcase functionality, but could better highlight specific use cases."
-          ]
-        },
-        "credibility": {
-          score: getRandomScore(),
-          summary: "Strong social proof with customer logos and testimonials, but technical credibility could be enhanced.",
-          explanation: [
-            "Client logos from recognized brands build immediate trust, particularly in the enterprise sector.",
-            "Customer testimonials include good quantifiable results, but could feature more diverse industry representation.",
-            "Security badges and certifications appear below the fold rather than prominently in signup flows."
-          ]
-        },
-        "user-experience": {
-          score: getRandomScore(),
-          summary: "Clean navigation and visual hierarchy, with some mobile optimization opportunities.",
-          explanation: [
-            "Desktop experience features intuitive navigation and clear CTAs with proper visual hierarchy.",
-            "Mobile menu requires optimization as dropdown items are difficult to tap accurately on smaller screens.",
-            "Form fields lack inline validation which creates friction in signup and contact forms."
-          ]
         }
-      }
     };
-  }
+}
   
   // Results page initialization
   function resultsPageInit() {
@@ -678,7 +677,7 @@ async function updateElementsFromRealAPI(apiResponse) {
     const data = results.data;
 
     // Check for required categories
-    const requiredCategories = ["target-audience", "messaging", "credibility", "user-experience"];
+    const requiredCategories = ["Target Audience", "Messaging", "Credibility", "User Experience"];
     for (const category of requiredCategories) {
         if (!data[category]) {
             console.error(`[Gazel] Missing category in API response: ${category}`);
@@ -689,19 +688,35 @@ async function updateElementsFromRealAPI(apiResponse) {
 
     // Update scores
     updateScore('score-overall', data["overall-score"]);
-    updateScore('score-audience', data["target-audience"]["audience-score"]);
-    updateScore('score-messaging', data["messaging"]["messaging-score"]);
-    updateScore('score-credibility', data["credibility"]["credibility-score"]);
-    updateScore('score-ux', data["user-experience"]["ux-score"]);
+    updateScore('score-audience', data["Target Audience"]["audience-score"]);
+    updateScore('score-messaging', data["Messaging"]["messaging-score"]);
+    updateScore('score-credibility', data["Credibility"]["credibility-score"]);
+    updateScore('score-ux', data["User Experience"]["ux-score"]);
 
     // Update audience demographics
-    updateElementContent('audience-men', data["target-audience"]["audience-men"] + '%');
-    updateElementContent('audience-women', data["target-audience"]["audience-women"] + '%');
-    updateElementContent('audience-age-group', data["target-audience"]["audience-age_groups"]);
+    updateElementContent('audience-men', data["Target Audience"]["audience-men"] + '%');
+    updateElementContent('audience-women', data["Target Audience"]["audience-women"] + '%');
+
+    // Find the dominant age group (with highest percentage)
+    if (data["Target Audience"]["audience-age_groups"]) {
+        const ageGroups = data["Target Audience"]["audience-age_groups"];
+        let maxPercentage = 0;
+        let dominantAgeGroup = '';
+
+        for (const [ageRange, percentage] of Object.entries(ageGroups)) {
+            if (percentage > maxPercentage) {
+                maxPercentage = percentage;
+                dominantAgeGroup = ageRange;
+            }
+        }
+
+        updateElementContent('audience-age-group', dominantAgeGroup);
+    }
+    updateElementContent('audience-age-group', data["Target Audience"]["audience-age_groups"]);
 
     // Update social media percentages
-    if (data["target-audience"]["audience-social_platforms"]) {
-        const platforms = data["target-audience"]["audience-social_platforms"];
+    if (data["Target Audience"]["audience-social_platforms"]) {
+        const platforms = data["Target Audience"]["audience-social_platforms"];
         updateElementContent('audience-facebook', platforms["facebook"] + '%');
         updateElementContent('audience-instagram', platforms["instagram"] + '%');
         updateElementContent('audience-x', platforms["x.com"] + '%');
@@ -710,16 +725,16 @@ async function updateElementsFromRealAPI(apiResponse) {
     }
 
     // Update summaries
-    updateElementContent('audience-summary', data["target-audience"]["audience-summary"]);
-    updateElementContent('messaging-summary', data["messaging"]["messaging-summary"]);
-    updateElementContent('credibility-summary', data["credibility"]["credibility-summary"]);
-    updateElementContent('ux-summary', data["user-experience"]["ux-summary"]);
+    updateElementContent('audience-summary', data["Target Audience"]["audience-summary"]);
+    updateElementContent('messaging-summary', data["Messaging"]["messaging-summary"]);
+    updateElementContent('credibility-summary', data["Credibility"]["credibility-summary"]);
+    updateElementContent('ux-summary', data["User Experience"]["ux-summary"]);
 
     // Update explanation points
-    updateExplanationPoints('audience', data["target-audience"]["audience-explanation"]);
-    updateExplanationPoints('messaging', data["messaging"]["messaging-explanation"]);
-    updateExplanationPoints('credibility', data["credibility"]["credibility-explanation"]);
-    updateExplanationPoints('ux', data["user-experience"]["ux-explanation"]);
+    updateExplanationPoints('audience', data["Target Audience"]["audience-explanation"]);
+    updateExplanationPoints('messaging', data["Messaging"]["messaging-explanation"]);
+    updateExplanationPoints('credibility', data["Credibility"]["credibility-explanation"]);
+    updateExplanationPoints('ux', data["User Experience"]["ux-explanation"]);
 }
   
  // Update explanation points for each category
