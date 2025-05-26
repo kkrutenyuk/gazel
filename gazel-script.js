@@ -99,7 +99,6 @@ function analyzeSEOViaForm(url) {
   sessionStorage.setItem('analyzedUrl', url);
   sessionStorage.setItem('userId', userId);
   sessionStorage.setItem('analysisStartTime', Date.now());
-  sessionStorage.setItem('apiEndpoint', 'https://api.gazel.ai/api/v1/seo_analyze');
   console.log('[Gazel] URL and user ID stored in sessionStorage');
   
   const dataToEncode = JSON.stringify({id: userId, url: url});
@@ -254,19 +253,11 @@ function decodeStripeReferenceId(encodedId) {
     const minLoadTime = 5000; // 5 second minimum loading time
     
     // Function to handle redirection with minimum loading time
-    function redirectAfterMinTime(isSuccess, data) {
+    function redirectAfterMinTime(isSuccess) {
       const elapsedTime = Date.now() - loadStartTime;
       const remainingTime = Math.max(0, minLoadTime - elapsedTime);
-      
-      if (isSuccess) {
-        // Store real API data in session storage
-        sessionStorage.setItem('seoAnalysisResults', JSON.stringify(data));
-        sessionStorage.setItem('usingRealData', 'true');
-      } else {
-        // Store error in session storage
-        sessionStorage.setItem('analysisError', data.toString());
-        sessionStorage.setItem('usingRealData', 'false');
-      }
+
+      sessionStorage.setItem('usingRealData', isSuccess ? 'true' : 'false');
       
       // Wait for the minimum loading time before redirecting
       setTimeout(() => {
@@ -276,10 +267,10 @@ function decodeStripeReferenceId(encodedId) {
     
     // Start API request or use simulated data
     startSEOAnalysisWithProxy(analyzedUrl)
-      .then(data => redirectAfterMinTime(true, data))
+      .then(() => redirectAfterMinTime(true))
       .catch(error => {
         console.error('[Gazel API] Error:', error);
-        redirectAfterMinTime(false, error);
+        redirectAfterMinTime(false);
       });
   }
   
@@ -293,31 +284,6 @@ function decodeStripeReferenceId(encodedId) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ url, id: userId })
   });
-
-  // Step 2: Check payment status
-  const paymentRes = await fetch('https://api.gazel.ai/api/v1/checkpayment', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id: userId })
-  });
-
-  const { paid } = await paymentRes.json() === "paid";
-  console.log('[Gazel API] Payment status:', paid ? 'PAID' : 'NOT PAID');
-
-  // Step 3: Fetch results
-
-    const resultsRes = await fetch('https://api.gazel.ai/api/v1/pre_results', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id: userId })
-  });
-
-  if (!resultsRes.ok) {
-    throw new Error(`Failed to fetch results: ${resultsRes.status}`);
-  }
-
-  const results = await resultsRes.json();
-  return results;
 }
 
   
@@ -357,8 +323,7 @@ function resultsPrePageInit() {
 
     // Optional: If you want to display preview data or partial results
     // on this page, you can access seoAnalysisResults from sessionStorage here
-    const resultsJson = sessionStorage.getItem('seoAnalysisResults');
-    if (resultsJson) {
+    if (sessionStorage.getItem('usingRealData') === 'true') {
         try {
             updatePreElementsFromRealAPI();
         } catch (error) {
@@ -581,40 +546,38 @@ function createSimulatedAPIResponse(url) {
 }
   
   // Results page initialization
-  function resultsPageInit() {
+function resultsPageInit() {
     // Get the URL from sessionStorage
     const analyzedUrl = sessionStorage.getItem('analyzedUrl') || '';
-    
+
     // Display the analyzed URL
     updateUrlDisplay(analyzedUrl);
-    
+
     // Check if we have real API results
-    const usingRealData = sessionStorage.getItem('usingRealData') === 'true'; 
-    if (usingRealData) {
-      try {
-        updateElementsFromRealAPI();
-      } catch (error) {
-        console.error('[Gazel] Error parsing API results:', error);
-        simulateScores(); // Fallback to simulation
-      }
+    if (sessionStorage.getItem('usingRealData') === 'true') {
+        try {
+            checkLegalityOfBeingOnResultsScreen().then(() => {
+                updateElementsFromRealAPI();
+            });
+        } catch (error) {
+            console.error('[Gazel] Error parsing API results:', error);
+            simulateScores(); // Fallback to simulation
+        }
     } else {
-      // No real data or error occurred - use simulated data
-      simulateScores();
+        // No real data or error occurred - use simulated data
+        simulateScores();
     }
-    
-    // Double-check if notification is needed
-    if (sessionStorage.getItem('usingRealData') !== 'true' || 
-        sessionStorage.getItem('usedFallbackMethod') === 'true') {
-      // Wait a short time to ensure the DOM is updated
-      setTimeout(addSimulatedDataNotice, 500);
+
+    if (sessionStorage.getItem('usingRealData') !== 'true') {
+        setTimeout(addSimulatedDataNotice, 500);
     }
-    
+
     // Check for hash in URL to activate correct tab
     if (window.location.hash) {
-      const tabId = window.location.hash.substring(1);
-      activateTab(tabId);
+        const tabId = window.location.hash.substring(1);
+        activateTab(tabId);
     }
-  }
+}
   
   // Function to activate the appropriate tab
   function activateTab(tabId) {
@@ -656,7 +619,22 @@ async function updatePreElementsFromRealAPI() {
     updateScore('score-ux', results.data["ux_score"]);
 }
 
-  // Update elements(full result) with API response data
+async function checkLegalityOfBeingOnResultsScreen() {
+    const userId = sessionStorage.getItem('userId') || getShortUserIdentifier();
+    // Check payment status
+    const paymentRes = await fetch('https://api.gazel.ai/api/v1/checkpayment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: userId })
+    });
+
+
+    const paid = await paymentRes.json();
+    if (paid === 'paid') {
+        window.location.href = '/results-pre';
+    }
+    return;
+}
 async function updateElementsFromRealAPI(apiResponse) {
     // Fetch results
     let resultsRes;
