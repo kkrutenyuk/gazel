@@ -637,7 +637,7 @@ function createSimulatedAPIResponse(url) {
   }
 
  // Update elements(pre result) with API response data
-async function updatePreElementsFromRealAPI(apiResponse) {
+async function updatePreElementsFromRealAPI() {
     // Fetch results
     const apiResponse = await fetch('https://api.gazel.ai/api/v1/pre_results', {
         method: 'POST',
