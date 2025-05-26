@@ -640,17 +640,20 @@ function createSimulatedAPIResponse(url) {
 async function updatePreElementsFromRealAPI() {
     // Fetch results
     const userId = sessionStorage.getItem('userId') || getShortUserIdentifier();
-    const apiResponse = await fetch('https://api.gazel.ai/api/v1/pre_results', {
+    const resultsPreRes = await fetch('https://api.gazel.ai/api/v1/pre_results', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: userId })
     });
+
+    const results = await resultsPreRes.json();
+
     // Display preview data from the API response
-    updateScore('score-overall', apiResponse.data["overall_score"]);
-    updateScore('score-audience', apiResponse.data["audience_score"]);
-    updateScore('score-messaging', apiResponse.data["messaging_score"]);
-    updateScore('score-credibility', apiResponse.data["credibility_score"]);
-    updateScore('score-ux', apiResponse.data["ux_score"]);
+    updateScore('score-overall', results.data["overall_score"]);
+    updateScore('score-audience', results.data["audience_score"]);
+    updateScore('score-messaging', results.data["messaging_score"]);
+    updateScore('score-credibility', results.data["credibility_score"]);
+    updateScore('score-ux', results.data["ux_score"]);
 }
 
   // Update elements(full result) with API response data
