@@ -639,6 +639,7 @@ function createSimulatedAPIResponse(url) {
  // Update elements(pre result) with API response data
 async function updatePreElementsFromRealAPI() {
     // Fetch results
+    const userId = sessionStorage.getItem('userId') || getShortUserIdentifier();
     const apiResponse = await fetch('https://api.gazel.ai/api/v1/pre_results', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
