@@ -630,7 +630,7 @@ async function checkLegalityOfBeingOnResultsScreen() {
 
 
     const paid = await paymentRes.json();
-    if (paid === 'paid') {
+    if (paid !== 'paid') {
         window.location.href = '/results-pre';
     }
     return;
