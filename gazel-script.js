@@ -287,7 +287,7 @@ function decodeStripeReferenceId(encodedId) {
   const userId = sessionStorage.getItem('userId') || getShortUserIdentifier();
   console.log('[Gazel API] Triggering analysis for:', url);
 
-  // Step 1: Trigger analysis (no response expected)
+  // Trigger analysis (no response expected)
   await fetch('https://api.gazel.ai/api/v1/seo_analyze', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -301,15 +301,12 @@ function decodeStripeReferenceId(encodedId) {
     body: JSON.stringify({ id: userId })
   });
 
-  const { paid } = await paymentRes.json();
+  const { paid } = await paymentRes.json() === "paid";
   console.log('[Gazel API] Payment status:', paid ? 'PAID' : 'NOT PAID');
 
   // Step 3: Fetch results
-  const resultsUrl = paid
-    ? 'https://api.gazel.ai/api/v1/full_results'
-    : 'https://api.gazel.ai/api/v1/pre_results';
 
-  const resultsRes = await fetch(resultsUrl, {
+    const resultsRes = await fetch('https://api.gazel.ai/api/v1/pre_results', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ id: userId })
@@ -325,57 +322,61 @@ function decodeStripeReferenceId(encodedId) {
 
   
   // Results Pre-page initialization
-  function resultsPrePageInit() {
+function resultsPrePageInit() {
     // Get the URL from sessionStorage
     let analyzedUrl = sessionStorage.getItem('analyzedUrl') || '';
-    
+
     // Display the analyzed URL
     updateUrlDisplay(analyzedUrl);
-    
+
     // Get the Stripe checkout URL from sessionStorage
     const stripeCheckoutUrl = sessionStorage.getItem('stripeCheckoutUrl');
-    
+
     // Set up both payment buttons to redirect to Stripe
     const paymentButton1 = document.getElementById('payment-button-1');
     const paymentButton2 = document.getElementById('payment-button-2');
-    
+
     // Function to handle button click
-    const handlePaymentClick = function(e) {
-      e.preventDefault();
-      console.log('[Gazel] Payment button clicked, redirecting to Stripe:', stripeCheckoutUrl);
-      window.location.href = stripeCheckoutUrl;
+    const handlePaymentClick = function (e) {
+        e.preventDefault();
+        console.log('[Gazel] Payment button clicked, redirecting to Stripe:', stripeCheckoutUrl);
+        window.location.href = stripeCheckoutUrl;
     };
-    
+
     // Add event listener to first payment button if it exists
     if (paymentButton1 && stripeCheckoutUrl) {
-      paymentButton1.addEventListener('click', handlePaymentClick);
-      console.log('[Gazel] Added click handler to payment button 1');
+        paymentButton1.addEventListener('click', handlePaymentClick);
+        console.log('[Gazel] Added click handler to payment button 1');
     }
-    
+
     // Add event listener to second payment button if it exists
     if (paymentButton2 && stripeCheckoutUrl) {
-      paymentButton2.addEventListener('click', handlePaymentClick);
-      console.log('[Gazel] Added click handler to payment button 2');
+        paymentButton2.addEventListener('click', handlePaymentClick);
+        console.log('[Gazel] Added click handler to payment button 2');
     }
-    
+
     // Optional: If you want to display preview data or partial results
     // on this page, you can access seoAnalysisResults from sessionStorage here
     const resultsJson = sessionStorage.getItem('seoAnalysisResults');
     if (resultsJson) {
-      try {
-        const apiResponse = JSON.parse(resultsJson);
-        // Display preview data from the API response
-        updateScore('score-overall', apiResponse.data["overall-score"]);
-        updateScore('score-audience', apiResponse.data["audience-score"]);
-        updateScore('score-messaging', apiResponse.data["messaging-score"]);
-        updateScore('score-credibility', apiResponse.data["credibility-score"]);
-        updateScore('score-ux', apiResponse.data["ux-score"]);
-        // For example, show overall score or a summary
-      } catch (error) {
-        console.error('Error parsing results for preview:', error);
-      }
+        try {
+            const apiResponse = await fetch('https://api.gazel.ai/api/v1/pre_results', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: userId })
+            });
+            // Display preview data from the API response
+            updateScore('score-overall', apiResponse.data["overall_score"]);
+            updateScore('score-audience', apiResponse.data["audience_score"]);
+            updateScore('score-messaging', apiResponse.data["messaging_score"]);
+            updateScore('score-credibility', apiResponse.data["credibility_score"]);
+            updateScore('score-ux', apiResponse.data["ux_score"]);
+            // For example, show overall score or a summary
+        } catch (error) {
+            console.error('Error parsing results for preview:', error);
+        }
     }
-  }
+}
   
   // Function to update URL display on loading page
   function updateUrlDisplay(url) {
@@ -645,7 +646,9 @@ function createSimulatedAPIResponse(url) {
       });
     }
   }
-  
+
+
+
   // Update elements with API response data
 async function updateElementsFromRealAPI(apiResponse) {
     // Fetch results
