@@ -360,18 +360,7 @@ function resultsPrePageInit() {
     const resultsJson = sessionStorage.getItem('seoAnalysisResults');
     if (resultsJson) {
         try {
-            const apiResponse = await fetch('https://api.gazel.ai/api/v1/pre_results', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: userId })
-            });
-            // Display preview data from the API response
-            updateScore('score-overall', apiResponse.data["overall_score"]);
-            updateScore('score-audience', apiResponse.data["audience_score"]);
-            updateScore('score-messaging', apiResponse.data["messaging_score"]);
-            updateScore('score-credibility', apiResponse.data["credibility_score"]);
-            updateScore('score-ux', apiResponse.data["ux_score"]);
-            // For example, show overall score or a summary
+            updatePreElementsFromRealAPI();
         } catch (error) {
             console.error('Error parsing results for preview:', error);
         }
@@ -647,9 +636,23 @@ function createSimulatedAPIResponse(url) {
     }
   }
 
+ // Update elements(pre result) with API response data
+async function updatePreElementsFromRealAPI(apiResponse) {
+    // Fetch results
+    const apiResponse = await fetch('https://api.gazel.ai/api/v1/pre_results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: userId })
+    });
+    // Display preview data from the API response
+    updateScore('score-overall', apiResponse.data["overall_score"]);
+    updateScore('score-audience', apiResponse.data["audience_score"]);
+    updateScore('score-messaging', apiResponse.data["messaging_score"]);
+    updateScore('score-credibility', apiResponse.data["credibility_score"]);
+    updateScore('score-ux', apiResponse.data["ux_score"]);
+}
 
-
-  // Update elements with API response data
+  // Update elements(full result) with API response data
 async function updateElementsFromRealAPI(apiResponse) {
     // Fetch results
     let resultsRes;
