@@ -739,7 +739,7 @@ async function updateElementsFromRealAPI(apiResponse) {
   if (!explanations || !Array.isArray(explanations)) return;
   
   // Update up to 3 points for each category
-  for (let i = 0; i < Math.min(explanations.length, 3); i++) {
+  for (let i = 0; i < Math.min(explanations.length, 5); i++) {
     const pointId = `${category}-p${i+1}`;
     updateElementContent(pointId, explanations[i]);
   }
