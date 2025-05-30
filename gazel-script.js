@@ -547,20 +547,28 @@ function createSimulatedAPIResponse(url) {
   
   // Results page initialization
 function resultsPageInit() {
-    // Get the URL from sessionStorage
-    const analyzedUrl = sessionStorage.getItem('analyzedUrl') || '';
+    const urlParams = new URLSearchParams(window.location.search);
 
     //If userId not null it means that user was redirected from email
-    const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('userId');
     if (userId) {
-        sessionStorage.setItem('gazel_user_id', userId);
+        localStorage.setItem('gazel_user_id', userId);
         sessionStorage.setItem('userId', userId);
         sessionStorage.setItem('usingRealData', 'true');
     }
 
+    // Get the URL from sessionStorage or url
+    let analyzedUrl = sessionStorage.getItem('analyzedUrl');
+    if (!analyzedUrl) {
+        const param = urlParams.get('analyzedUrl');
+        if (param) {
+            analyzedUrl = decodeURIComponent(param);
+            sessionStorage.setItem('analyzedUrl', analyzedUrl);
+        }
+    }
+
     // Display the analyzed URL
-    updateUrlDisplay(analyzedUrl);
+    updateUrlDisplay(analyzedUrl ?? '');
 
     // Check if we have real API results
     if (sessionStorage.getItem('usingRealData') === 'true') {
