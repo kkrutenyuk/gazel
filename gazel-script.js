@@ -550,6 +550,15 @@ function resultsPageInit() {
     // Get the URL from sessionStorage
     const analyzedUrl = sessionStorage.getItem('analyzedUrl') || '';
 
+    //If userId not null it means that user was redirected from email
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('userId');
+    if (userId) {
+        sessionStorage.setItem('gazel_user_id', userId);
+        sessionStorage.setItem('userId', userId);
+        sessionStorage.setItem('usingRealData', 'true');
+    }
+
     // Display the analyzed URL
     updateUrlDisplay(analyzedUrl);
 
