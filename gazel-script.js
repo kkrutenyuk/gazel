@@ -567,6 +567,10 @@ function resultsPageInit() {
         }
     }
 
+    //remove params from url
+    const baseUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, baseUrl);
+
     // Display the analyzed URL
     updateUrlDisplay(analyzedUrl ?? '');
 
