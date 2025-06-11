@@ -49,34 +49,14 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Function to get or create a short persistent user identifier
-function getShortUserIdentifier() {
-  // Try to get from localStorage first (most persistent)
-  let userId = localStorage.getItem('gazel_user_id');
-  
-  // If not found in localStorage, check sessionStorage (fallback)
-  if (!userId) {
-    userId = sessionStorage.getItem('gazel_user_id');
-  }
-  
-  // If still not found, create a new one (shorter format)
-  if (!userId) {
-    // Generate a shorter unique ID using timestamp and random values
-    // Format: timestamp (base36) + short random string (8 chars)
-    const timestamp = Date.now().toString(36);
-    const randomPart = Math.random().toString(36).substring(2, 10);
-    userId = timestamp + randomPart;
-    
-    // Store in both localStorage and sessionStorage for persistence
-    try {
-      localStorage.setItem('gazel_user_id', userId);
-    } catch (e) {
-      console.log('[Gazel] Unable to use localStorage, falling back to sessionStorage only');
+    function getShortUserIdentifier() {
+        // Generate a shorter unique ID using timestamp and random values
+        // Format: timestamp (base36) + short random string (8 chars)
+        const timestamp = Date.now().toString(36);
+        const randomPart = Math.random().toString(36).substring(2, 10);
+        let userId = timestamp + randomPart;
+        return userId;
     }
-    sessionStorage.setItem('gazel_user_id', userId);
-  }
-  
-  return userId;
-}
 
 // Function to analyze SEO using loading page approach
 function analyzeSEOViaForm(url) {
@@ -275,7 +255,7 @@ function decodeStripeReferenceId(encodedId) {
   }
   
   async function startSEOAnalysisWithProxy(url) {
-  const userId = sessionStorage.getItem('userId') || getShortUserIdentifier();
+  const userId = sessionStorage.getItem('userId');
   console.log('[Gazel API] Triggering analysis for:', url);
 
   // Trigger analysis (no response expected)
@@ -552,7 +532,6 @@ function resultsPageInit() {
     //If userId not null it means that user was redirected from email
     const userId = urlParams.get('userId');
     if (userId) {
-        localStorage.setItem('gazel_user_id', userId);
         sessionStorage.setItem('userId', userId);
         sessionStorage.setItem('usingRealData', 'true');
     }
@@ -623,7 +602,7 @@ function resultsPageInit() {
  // Update elements(pre result) with API response data
 async function updatePreElementsFromRealAPI() {
     // Fetch results
-    const userId = sessionStorage.getItem('userId') || getShortUserIdentifier();
+    const userId = sessionStorage.getItem('userId');
     const resultsPreRes = await fetch('https://api.gazel.ai/api/v1/pre_results', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -641,7 +620,7 @@ async function updatePreElementsFromRealAPI() {
 }
 
 async function checkLegalityOfBeingOnResultsScreen() {
-    const userId = sessionStorage.getItem('userId') || getShortUserIdentifier();
+    const userId = sessionStorage.getItem('userId');
     // Check payment status
     const paymentRes = await fetch('https://api.gazel.ai/api/v1/checkpayment', {
         method: 'POST',
@@ -660,7 +639,7 @@ async function updateElementsFromRealAPI(apiResponse) {
     // Fetch results
     let resultsRes;
     if (!apiResponse) {
-        const userId = sessionStorage.getItem('userId') || getShortUserIdentifier();
+        const userId = sessionStorage.getItem('userId');
         resultsRes = await fetch('https://api.gazel.ai/api/v1/full_results', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
