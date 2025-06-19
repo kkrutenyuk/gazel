@@ -92,10 +92,10 @@ function analyzeSEOViaForm(url) {
   // Note: The Stripe link part may change in the final version
 
   // original stripe url
-  const stripeCheckoutUrl = `https://buy.stripe.com/4gw6p4dJuei17ba6op?client_reference_id=${encodedData}`;
+  //const stripeCheckoutUrl = `https://buy.stripe.com/4gw6p4dJuei17ba6op?client_reference_id=${encodedData}`;
 
   //test stripe url
-  // const stripeCheckoutUrl = `https://buy.stripe.com/test_4gw7szfwOeCq3pS9AA?client_reference_id=${encodedData}`;
+  const stripeCheckoutUrl = `https://buy.stripe.com/test_4gw7szfwOeCq3pS9AA?client_reference_id=${encodedData}`;
   console.log('[Gazel] Stripe checkout URL:', stripeCheckoutUrl);
   
   // Store the Stripe URL in sessionStorage
