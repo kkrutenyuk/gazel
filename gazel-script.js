@@ -269,6 +269,11 @@ function decodeStripeReferenceId(encodedId) {
   
   // Results Pre-page initialization
 function resultsPrePageInit() {
+    const logo = document.querySelector('.logo');
+    logo.addEventListener('click', function (e) {
+        window.location.replace('/');
+    });
+
     // Get the URL from sessionStorage
     let analyzedUrl = sessionStorage.getItem('analyzedUrl') || '';
 
@@ -527,6 +532,11 @@ function createSimulatedAPIResponse(url) {
   
   // Results page initialization
 function resultsPageInit() {
+    const logo = document.querySelector('.logo');
+    logo.addEventListener('click', function (e) {
+        window.location.replace('/');
+    });
+
     const urlParams = new URLSearchParams(window.location.search);
 
     //If userId not null it means that user was redirected from email
