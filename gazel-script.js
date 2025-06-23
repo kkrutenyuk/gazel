@@ -869,6 +869,10 @@ function updateGraphs(elementId, score) {
         elements.forEach(element => {
             element.setAttribute("stroke-dasharray", formattedScore.toString() + ", 100");
             element.setAttribute("stroke-opacity", "1");
+			
+			element.style.animation = "none";
+			element.offsetHeight; 
+			element.style.animation = "progress 1s ease-out forwards";
         });
     }
 }
