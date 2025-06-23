@@ -269,6 +269,11 @@ function decodeStripeReferenceId(encodedId) {
   
   // Results Pre-page initialization
 function resultsPrePageInit() {
+    const logo = document.querySelector('.logo');
+    logo.addEventListener('click', function (e) {
+        window.location.replace('/');
+    });
+
     // Get the URL from sessionStorage
     let analyzedUrl = sessionStorage.getItem('analyzedUrl') || '';
 
@@ -527,6 +532,11 @@ function createSimulatedAPIResponse(url) {
   
   // Results page initialization
 function resultsPageInit() {
+    const logo = document.querySelector('.logo');
+    logo.addEventListener('click', function (e) {
+        window.location.replace('/');
+    });
+
     const urlParams = new URLSearchParams(window.location.search);
 
     //If userId not null it means that user was redirected from email
@@ -614,9 +624,16 @@ async function updatePreElementsFromRealAPI() {
     // Display preview data from the API response
     updateScore('score-overall', results.data["overall_score"]);
     updateScore('score-audience', results.data["audience_score"]);
+    updateGraphs('circle-progress-audience', results.data["audience_score"]);
+
     updateScore('score-messaging', results.data["messaging_score"]);
+    updateGraphs('circle-progress-messaging', results.data["messaging_score"]);
+
     updateScore('score-credibility', results.data["credibility_score"]);
+    updateGraphs('circle-progress-credibility', results.data["credibility_score"]);
+
     updateScore('score-ux', results.data["ux_score"]);
+    updateGraphs('circle-progress-ux', results.data["ux_score"]);
 }
 
 async function checkLegalityOfBeingOnResultsScreen() {
@@ -686,10 +703,18 @@ async function updateElementsFromRealAPI(apiResponse) {
 
     // Update scores
     updateScore('score-overall', overallScore);
+
     updateScore('score-audience', data["Target_Audience"]["audience_score"]);
+    updateGraphs('circle-progress-audience', data["Target_Audience"]["audience_score"]);
+
     updateScore('score-messaging', data["Messaging"]["messaging_score"]);
+    updateGraphs('circle-progress-messaging', data["Messaging"]["messaging_score"]);
+
     updateScore('score-credibility', data["Credibility"]["credibility_score"]);
+    updateGraphs('circle-progress-credibility', data["Credibility"]["credibility_score"]);
+
     updateScore('score-ux', data["User_Experience"]["ux_score"]);
+    updateGraphs('circle-progress-ux', data["User_Experience"]["ux_score"]);
 
     // Update audience demographics
     updateElementContent('audience-men', data["Target_Audience"]["audience_men"] + '%');
@@ -827,6 +852,27 @@ function updateScore(elementId, score) {
     element.textContent = formattedScore;
   });
 }
+
+
+// Helper function to update graphs elements
+function updateGraphs(elementId, score) {
+    if (!elementId || score === undefined || score === null) return;
+
+    // Find all elements with the matching ID
+    const elements = document.querySelectorAll('#' + elementId);
+    if (!elements.length) return;
+
+    // Format the score (round to nearest integer)
+    const formattedScore = typeof score === 'number' ? Math.round(score) : 0;
+    // Update all matching elements
+    if (formattedScore > 0) {
+        elements.forEach(element => {
+            element.setAttribute("stroke-dasharray", formattedScore.toString() + ", 100");
+            element.setAttribute("stroke-opacity", "1");
+        });
+    }
+}
+
 
 // Helper function for getting preferred age group by json key
 function getPreferredAgeGroupByJsonKey(preferredAgeKey) {
