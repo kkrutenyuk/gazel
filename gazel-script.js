@@ -313,6 +313,7 @@ function resultsPrePageInit() {
             updatePreElementsFromRealAPI();
         } catch (error) {
             console.error('Error parsing results for preview:', error);
+            navigateToError();
         }
     }
 }
@@ -462,73 +463,6 @@ function resultsPrePageInit() {
     }
   }
   
-  // Create simulated API response for development/testing
-function createSimulatedAPIResponse(url) {
-    // Generate random scores between 65-95
-    const getRandomScore = () => Math.floor(Math.random() * 30) + 65;
-    const getRandomPercentage = () => Math.floor(Math.random() * 60) + 20; // 20-80%
-
-    return {
-        success: true,
-        message: "Analysis completed successfully (simulated)",
-        data: {
-            "Target_Audience": {
-                "audience_score": getRandomScore(),
-                "audience_summary": "Your site effectively targets your audience but could be more specific to industry verticals.",
-                "audience_explanation": [
-                    "The website's minimalistic design ensures low visual clutter, contributing to a focused user experience. However, the lack of prominent trust elements like customer reviews or media badges slightly undermines credibility. For example, the absence of third-party logos or certifications may reduce perceived authority. While the content is concise, deeper engagement metrics like session duration could be improved. The straightforward hierarchy aids navigation but may oversimplify complex information.",
-                    "Demographic alignment is partially achieved, with imagery and messaging catering to a broad audience. However, specific age groups or niches may find the content too generic. The site avoids repetitive sections, maintaining user interest, but could benefit from more dynamic content updates. Mobile optimization is strong, yet some users might expect more personalized features. The balance between new and returning visitors suggests steady growth but not strong loyalty.",
-                    "Trust-building elements are underutilized, with few customer testimonials or media mentions highlighted. Security badges or partnerships are not prominently displayed, which could affect user confidence. The lack of detailed case studies or data-driven success metrics limits social proof. While the site is functional, adding trust signals would enhance credibility. Users seeking verified information might seek additional reassurance elsewhere.",
-                    "Content relevance is mixed, with core messaging aligning to general user needs but lacking depth for specific queries. The absence of niche-specific examples or tailored solutions may reduce engagement. While the site avoids fluff, some sections could benefit from more detailed explanations. Users expecting highly specialized information might find the content too surface-level. Improving topical depth could increase time-on-page metrics.",
-                    "User experience is streamlined but lacks advanced customization options. The clean layout supports ease of use but may feel impersonal to some audiences. Spacing and typography are consistent, though visual hierarchy could better guide user attention. Images are professional but generic, missing opportunities for audience-specific relatability. Enhancing interactive elements or personalized content paths could boost engagement."
-                ],
-                "audience-executive_summary": "While functionally effective, the website would benefit from enhanced trust signals, demographic-specific content, and deeper engagement features to improve audience alignment and retention.",
-                "audience_women": getRandomPercentage(),
-                "audience_men": 100 - getRandomPercentage(), // Ensures male + female = 100%
-                "audience_age_groups": {
-                    "age_18_24": Math.floor(Math.random() * 25),
-                    "age_25_34": Math.floor(Math.random() * 40),
-                    "age_35_44": Math.floor(Math.random() * 30),
-                    "age_45_plus": Math.floor(Math.random() * 25)
-                },
-                "audience_social_platforms": {
-                    "Facebook": 34,
-                    "Instagram": 28,
-                    "x_com": 18,
-                    "reddit": 12,
-                    "linkedin": 8
-                },
-            },
-            "Messaging": {
-                "messaging_score": getRandomScore(),
-                "messaging_summary": "Clear primary value proposition with opportunity to strengthen feature-to-benefit connections.",
-                "messaging_explanation": [
-                    "Your headline clearly communicates the core problem you solve, though secondary headlines sometimes focus on features rather than outcomes.",
-                    "Case studies effectively demonstrate real-world results, but pricing page lacks sufficient social proof elements.",
-                    "Product screenshots effectively showcase functionality, but could better highlight specific use cases."
-                ]
-            },
-            "Credibility": {
-                "credibility_score": getRandomScore(),
-                "credibility_summary": "Strong social proof with customer logos and testimonials, but technical credibility could be enhanced.",
-                "credibility_explanation": [
-                    "Client logos from recognized brands build immediate trust, particularly in the enterprise sector.",
-                    "Customer testimonials include good quantifiable results, but could feature more diverse industry representation.",
-                    "Security badges and certifications appear below the fold rather than prominently in signup flows."
-                ]
-            },
-            "User_Experience": {
-                "ux_score": getRandomScore(),
-                "ux_summary": "Clean navigation and visual hierarchy, with some mobile optimization opportunities.",
-                "ux_explanation": [
-                    "Desktop experience features intuitive navigation and clear CTAs with proper visual hierarchy.",
-                    "Mobile menu requires optimization as dropdown items are difficult to tap accurately on smaller screens.",
-                    "Form fields lack inline validation which creates friction in signup and contact forms."
-                ]
-            }
-        }
-    };
-}
   
   // Results page initialization
 function resultsPageInit() {
@@ -571,15 +505,15 @@ function resultsPageInit() {
             });
         } catch (error) {
             console.error('[Gazel] Error parsing API results:', error);
-            simulateScores(); // Fallback to simulation
+            navigateToError();
         }
     } else {
-        // No real data or error occurred - use simulated data
-        simulateScores();
+        // No real data or error occurred
+        navigateToError();
     }
 
     if (sessionStorage.getItem('usingRealData') !== 'true') {
-        setTimeout(addSimulatedDataNotice, 500);
+        navigateToError();
     }
 
     // Check for hash in URL to activate correct tab
@@ -620,7 +554,11 @@ async function updatePreElementsFromRealAPI() {
     });
 
     const results = await resultsPreRes.json();
-
+    if (!results.data["overall_score"] || results.data["overall_score"] == 0) {
+        console.error(`[Gazel] no responce data`);
+        navigateToError();
+        return;
+    }
     // Display preview data from the API response
     updateScore('score-overall', results.data["overall_score"]);
     updateScore('score-audience', results.data["audience_score"]);
@@ -654,18 +592,12 @@ async function checkLegalityOfBeingOnResultsScreen() {
 }
 async function updateElementsFromRealAPI(apiResponse) {
     // Fetch results
-    let resultsRes;
-    if (!apiResponse) {
-        const userId = sessionStorage.getItem('userId');
-        resultsRes = await fetch('https://api.gazel.ai/api/v1/full_results', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: userId })
-        });
-    }
-    else {
-        resultsRes = apiResponse;
-    }
+    const userId = sessionStorage.getItem('userId');
+    let resultsRes = await fetch('https://api.gazel.ai/api/v1/full_results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: userId })
+    });
     if (!resultsRes.ok) {
         throw new Error(`Failed to fetch results: ${resultsRes.status}`);
     }
@@ -675,7 +607,7 @@ async function updateElementsFromRealAPI(apiResponse) {
     // Check for data structure
     if (!results || !results.data) {
         console.error('[Gazel] Invalid API response structure:', results);
-        simulateScores();
+        navigateToError();
         return;
     }
 
@@ -686,7 +618,7 @@ async function updateElementsFromRealAPI(apiResponse) {
     for (const category of requiredCategories) {
         if (!data[category]) {
             console.error(`[Gazel] Missing category in API response: ${category}`);
-            simulateScores();
+            navigateToError();
             return;
         }
     }
@@ -701,6 +633,11 @@ async function updateElementsFromRealAPI(apiResponse) {
         )
         / 4);
 
+    if (!overallScore || overallScore == 0) {
+        console.error(`[Gazel] no responce data`);
+        navigateToError();
+        return;
+    }
     // Update scores
     updateScore('score-overall', overallScore);
 
@@ -770,61 +707,6 @@ async function updateElementsFromRealAPI(apiResponse) {
   }
 }
 
-// Simulate scores when no API data available
-function simulateScores() {
-  console.log('[Gazel] Using simulated data for display');
-  
-  // Mark as using simulated data in session storage
-  sessionStorage.setItem('usingRealData', 'false');
-  
-  // Create simulated data using the same function as the API fallback
-  const simulatedData = createSimulatedAPIResponse(sessionStorage.getItem('analyzedUrl') || 'example.com');
-
-  // Use the same function that processes real API data
-  updateElementsFromRealAPI(simulatedData);
-  
-  // Add notification that data is simulated
-  addSimulatedDataNotice();
-}
-
-// Add notification that data is simulated
-function addSimulatedDataNotice() {
-  // Check if notice already exists
-  if (document.querySelector('.simulated-data-notice')) {
-    return;
-  }
-  
-  // Create the notice element
-  const notice = document.createElement('div');
-  notice.className = 'simulated-data-notice';
-  notice.style.position = 'fixed';
-  notice.style.bottom = '20px';
-  notice.style.right = '20px';
-  notice.style.padding = '10px 15px';
-  notice.style.background = '#FFF9E5';
-  notice.style.border = '1px solid #FFD580';
-  notice.style.borderRadius = '4px';
-  notice.style.color = '#856404';
-  notice.style.fontSize = '14px';
-  notice.style.fontWeight = '500';
-  notice.style.zIndex = '9999';
-  notice.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-  notice.textContent = 'Note: Using simulated data for demonstration';
-  
-  // Add to body
-  document.body.appendChild(notice);
-  
-  console.log('[Gazel] Added simulated data notice to page');
-  
-  // Ensure the notice stays visible by re-checking later
-  // (Some frameworks might remove dynamically added elements)
-  setTimeout(() => {
-    if (!document.querySelector('.simulated-data-notice')) {
-      console.log('[Gazel] Notice was removed, adding it again');
-      document.body.appendChild(notice.cloneNode(true));
-    }
-  }, 1000);
-}
 
 // Helper function to update element content if it exists
 function updateElementContent(elementId, content) {
@@ -893,5 +775,9 @@ function getPreferredAgeGroupByJsonKey(preferredAgeKey) {
     } else {
         return from;
     }
+}
+
+function navigateToError() {
+    window.location.href = '/error';
 }
 
