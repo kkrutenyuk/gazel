@@ -539,6 +539,10 @@ async function updatePreElementsFromRealAPI() {
         body: JSON.stringify({ id: userId })
     });
 
+    if (!resultsPreRes.ok) {
+        throw new Error(`Failed to fetch results-pre: ${resultsRes.status}`);
+    }
+
     const results = await resultsPreRes.json();
     if (!results.data["overall_score"] || results.data["overall_score"] == 0) {
         console.error(`[Gazel] no responce data`);
