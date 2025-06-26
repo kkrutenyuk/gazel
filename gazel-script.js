@@ -233,11 +233,9 @@ function decodeStripeReferenceId(encodedId) {
     const minLoadTime = 5000; // 5 second minimum loading time
     
     // Function to handle redirection with minimum loading time
-    function redirectAfterMinTime(isSuccess) {
+    function redirectAfterMinTime() {
       const elapsedTime = Date.now() - loadStartTime;
       const remainingTime = Math.max(0, minLoadTime - elapsedTime);
-
-      sessionStorage.setItem('usingRealData', isSuccess ? 'true' : 'false');
       
       // Wait for the minimum loading time before redirecting
       setTimeout(() => {
@@ -247,10 +245,10 @@ function decodeStripeReferenceId(encodedId) {
     
     // Start API request or use simulated data
     startSEOAnalysisWithProxy(analyzedUrl)
-      .then(() => redirectAfterMinTime(true))
+      .then(() => redirectAfterMinTime())
       .catch(error => {
-        console.error('[Gazel API] Error:', error);
-        redirectAfterMinTime(false);
+          console.error('[Gazel API] Error:', error);
+          navigateToError();
       });
   }
   
@@ -308,13 +306,11 @@ function resultsPrePageInit() {
 
     // Optional: If you want to display preview data or partial results
     // on this page, you can access seoAnalysisResults from sessionStorage here
-    if (sessionStorage.getItem('usingRealData') === 'true') {
-        try {
-            updatePreElementsFromRealAPI();
-        } catch (error) {
-            console.error('Error parsing results for preview:', error);
-            navigateToError();
-        }
+    try {
+        updatePreElementsFromRealAPI();
+    } catch (error) {
+        console.error('Error parsing results for preview:', error);
+        navigateToError();
     }
 }
   
@@ -477,7 +473,6 @@ function resultsPageInit() {
     const userId = urlParams.get('userId');
     if (userId) {
         sessionStorage.setItem('userId', userId);
-        sessionStorage.setItem('usingRealData', 'true');
     }
 
     // Get the URL from sessionStorage or url
@@ -498,21 +493,12 @@ function resultsPageInit() {
     updateUrlDisplay(analyzedUrl ?? '');
 
     // Check if we have real API results
-    if (sessionStorage.getItem('usingRealData') === 'true') {
-        try {
-            checkLegalityOfBeingOnResultsScreen().then(() => {
-                updateElementsFromRealAPI();
-            });
-        } catch (error) {
-            console.error('[Gazel] Error parsing API results:', error);
-            navigateToError();
-        }
-    } else {
-        // No real data or error occurred
-        navigateToError();
-    }
-
-    if (sessionStorage.getItem('usingRealData') !== 'true') {
+    try {
+        checkLegalityOfBeingOnResultsScreen().then(() => {
+            updateElementsFromRealAPI();
+        });
+    } catch (error) {
+        console.error('[Gazel] Error parsing API results:', error);
         navigateToError();
     }
 
