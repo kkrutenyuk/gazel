@@ -225,8 +225,6 @@ function decodeStripeReferenceId(encodedId) {
     // Display the analyzed URL on the loading page
     updateUrlDisplay(analyzedUrl);
     
-    // Create and add spinner animation
-    createAndAddSpinner();
     
     // Wait minimum time before redirecting (for perceived loading experience)
     const loadStartTime = Date.now();
@@ -332,123 +330,6 @@ function resultsPrePageInit() {
           });
         }
       });
-    }
-  }
-  
-  // Function to create and add spinner animation to loading page
-  function createAndAddSpinner() {
-    console.log('[Gazel] Creating spinner animation');
-    
-    // Check if spinner already exists
-    if (document.querySelector('.gazel-spinner')) {
-      console.log('[Gazel] Spinner already exists, skipping creation');
-      return;
-    }
-    
-    // Create spinner element
-    const spinner = document.createElement('div');
-    spinner.className = 'gazel-spinner';
-    spinner.style.display = 'block';
-    spinner.style.margin = '20px auto';
-    
-    // Add spinner HTML
-    spinner.innerHTML = `
-      <div class="clock-spinner">
-        <div class="clock-spinner-line" style="transform: rotate(0deg)"></div>
-        <div class="clock-spinner-line" style="transform: rotate(45deg)"></div>
-        <div class="clock-spinner-line" style="transform: rotate(90deg)"></div>
-        <div class="clock-spinner-line" style="transform: rotate(135deg)"></div>
-        <div class="clock-spinner-line" style="transform: rotate(180deg)"></div>
-        <div class="clock-spinner-line" style="transform: rotate(225deg)"></div>
-        <div class="clock-spinner-line" style="transform: rotate(270deg)"></div>
-        <div class="clock-spinner-line" style="transform: rotate(315deg)"></div>
-      </div>
-    `;
-    
-    // Add spinner CSS
-    if (!document.getElementById('gazel-spinner-styles')) {
-      const style = document.createElement('style');
-      style.id = 'gazel-spinner-styles';
-      style.textContent = `
-        .gazel-spinner {
-          text-align: center;
-          padding: 20px;
-          display: block !important;
-          visibility: visible !important;
-          opacity: 1 !important;
-          z-index: 9999;
-        }
-        .clock-spinner {
-          position: relative;
-          width: 80px;
-          height: 80px;
-          margin: 0 auto;
-        }
-        .clock-spinner-line {
-          position: absolute;
-          width: 4px;
-          height: 20px;
-          background-color: #3C3C3C;
-          top: 8px;
-          left: 50%;
-          margin-left: -2px;
-          transform-origin: center 32px;
-          opacity: 0.2;
-          animation: clock-fade 0.8s linear infinite;
-        }
-        .clock-spinner-line:nth-child(1) { animation-delay: 0s; }
-        .clock-spinner-line:nth-child(2) { animation-delay: 0.1s; }
-        .clock-spinner-line:nth-child(3) { animation-delay: 0.2s; }
-        .clock-spinner-line:nth-child(4) { animation-delay: 0.3s; }
-        .clock-spinner-line:nth-child(5) { animation-delay: 0.4s; }
-        .clock-spinner-line:nth-child(6) { animation-delay: 0.5s; }
-        .clock-spinner-line:nth-child(7) { animation-delay: 0.6s; }
-        .clock-spinner-line:nth-child(8) { animation-delay: 0.7s; }
-        @keyframes clock-fade {
-          0%, 12.5%, 100% { opacity: 0.2; }
-          6.25% { opacity: 1; }
-        }
-      `;
-      document.head.appendChild(style);
-    }
-    
-    // Add spinner to loading-wrap element (or fallback containers)
-    const loadingWrap = document.querySelector('.loading-wrap');
-    
-    if (loadingWrap) {
-      loadingWrap.appendChild(spinner);
-      console.log('[Gazel] Added spinner to loading-wrap');
-    } else {
-      // Try alternate containers
-      const possibleContainers = [
-        document.querySelector('.loading-container'),
-        document.querySelector('main'),
-        document.querySelector('.main-content'),
-        document.querySelector('.section'),
-        document.querySelector('.container'),
-        document.body
-      ];
-      
-      let spinnerAdded = false;
-      
-      for (const container of possibleContainers) {
-        if (container) {
-          container.appendChild(spinner);
-          console.log('[Gazel] Added spinner to fallback container:', container);
-          spinnerAdded = true;
-          break;
-        }
-      }
-      
-      // Last resort - add directly to body with fixed positioning
-      if (!spinnerAdded) {
-        document.body.appendChild(spinner);
-        spinner.style.position = 'fixed';
-        spinner.style.top = '50%';
-        spinner.style.left = '50%';
-        spinner.style.transform = 'translate(-50%, -50%)';
-        console.log('[Gazel] Added spinner directly to body');
-      }
     }
   }
   
