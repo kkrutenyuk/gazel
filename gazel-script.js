@@ -304,14 +304,7 @@ function resultsPrePageInit() {
         console.log('[Gazel] Added click handler to payment button 2');
     }
 
-    // Optional: If you want to display preview data or partial results
-    // on this page, you can access seoAnalysisResults from sessionStorage here
-    try {
-        updatePreElementsFromRealAPI();
-    } catch (error) {
-        console.error('Error parsing results for preview:', error);
-        navigateToError();
-    }
+    updatePreElementsFromRealAPI();
 }
   
   // Function to update URL display on loading page
@@ -492,15 +485,9 @@ function resultsPageInit() {
     // Display the analyzed URL
     updateUrlDisplay(analyzedUrl ?? '');
 
-    // Check if we have real API results
-    try {
-        checkLegalityOfBeingOnResultsScreen().then(() => {
-            updateElementsFromRealAPI();
-        });
-    } catch (error) {
-        console.error('[Gazel] Error parsing API results:', error);
-        navigateToError();
-    }
+    checkLegalityOfBeingOnResultsScreen().then(() => {
+        updateElementsFromRealAPI();
+    });
 
     // Check for hash in URL to activate correct tab
     if (window.location.hash) {
@@ -540,7 +527,8 @@ async function updatePreElementsFromRealAPI() {
     });
 
     if (!resultsPreRes.ok) {
-        throw new Error(`Failed to fetch results-pre: ${resultsPreRes.status}`);
+        console.error('[Gazel] Error parsing API results-pre');
+        navigateToError();
     }
 
     const results = await resultsPreRes.json();
@@ -589,7 +577,8 @@ async function updateElementsFromRealAPI(apiResponse) {
         body: JSON.stringify({ id: userId })
     });
     if (!resultsRes.ok) {
-        throw new Error(`Failed to fetch results: ${resultsRes.status}`);
+        console.error('[Gazel] Error parsing API results');
+        navigateToError();
     }
 
     const results = await resultsRes.json();
