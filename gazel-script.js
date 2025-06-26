@@ -540,7 +540,7 @@ async function updatePreElementsFromRealAPI() {
     });
 
     if (!resultsPreRes.ok) {
-        throw new Error(`Failed to fetch results-pre: ${resultsRes.status}`);
+        throw new Error(`Failed to fetch results-pre: ${resultsPreRes.status}`);
     }
 
     const results = await resultsPreRes.json();
