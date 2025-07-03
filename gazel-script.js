@@ -275,6 +275,7 @@ function addMailSignUpLogic() {
 
     const emailField = document.querySelector('.email-field');
     const emailButton = document.querySelector('.email-button');
+    const emailResetButton = document.querySelector('.email-reset-form');
     // Handle input changes
     if (emailField && emailButton) {
         emailField.addEventListener('input', function () {
@@ -308,6 +309,13 @@ function addMailSignUpLogic() {
                 emailField.setCustomValidity('Please enter a valid email');
                 emailField.reportValidity();
             }
+        });
+
+
+        emailResetButton.addEventListener('click', function (e) {
+            emailField.value = '';
+            emailSignUpForm.style.display = 'flex';
+            emailSignUpSuccess.style.display = 'none';
         });
     }
 } 
