@@ -262,13 +262,48 @@ function decodeStripeReferenceId(encodedId) {
   });
 }
 
-  
+// Email validation helper
+function isValidEmail(email) {
+    if (!email) return false;
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email.toLowerCase());
+}
+
+function addMailSignUpLogic() {
+    const emailField = document.querySelector('.email-field');
+    const emailButton = document.querySelector('.email-button');
+    // Handle input changes
+    if (emailField) {
+        emailField.addEventListener('input', function () {
+            const inputValue = this.value.trim();
+            const parent = this.closest('.email-input_area');
+            if (parent) {
+                parent.classList.toggle('has-content', !!inputValue);
+            }
+
+            if (emailButton) {
+                if (isValidEmail(inputValue)) {
+                    emailButton.style.opacity = '1';
+                    emailButton.style.pointerEvents = 'auto';
+                    emailField.setCustomValidity('');
+                    emailButton.classList.add('email-valid');
+                } else {
+                    emailButton.style.opacity = '0.5';
+                    emailButton.style.pointerEvents = 'none';
+                    emailField.setCustomValidity(inputValue ? 'Please enter a valid email' : '');
+                    emailButton.classList.remove('email-valid');
+                }
+            }
+        });
+    }
+} 
   // Results Pre-page initialization
 function resultsPrePageInit() {
     const logo = document.querySelector('.logo');
     logo.addEventListener('click', function (e) {
         window.location.replace('/');
     });
+    addMailSignUpLogic();
 
     // Get the URL from sessionStorage
     let analyzedUrl = sessionStorage.getItem('analyzedUrl') || '';
