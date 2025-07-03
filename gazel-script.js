@@ -270,10 +270,13 @@ function isValidEmail(email) {
 }
 
 function addMailSignUpLogic() {
+    const emailSignUpForm = document.querySelector('.email-sign-up-form');
+    const emailSignUpSuccess = document.querySelector('.email-sign-up-successfully');
+
     const emailField = document.querySelector('.email-field');
     const emailButton = document.querySelector('.email-button');
     // Handle input changes
-    if (emailField) {
+    if (emailField && emailButton) {
         emailField.addEventListener('input', function () {
             const inputValue = this.value.trim();
             const parent = this.closest('.email-input_area');
@@ -281,18 +284,29 @@ function addMailSignUpLogic() {
                 parent.classList.toggle('has-content', !!inputValue);
             }
 
-            if (emailButton) {
-                if (isValidEmail(inputValue)) {
-                    emailButton.style.opacity = '1';
-                    emailButton.style.pointerEvents = 'auto';
-                    emailField.setCustomValidity('');
-                    emailButton.classList.add('email-valid');
-                } else {
-                    emailButton.style.opacity = '0.5';
-                    emailButton.style.pointerEvents = 'none';
-                    emailField.setCustomValidity(inputValue ? 'Please enter a valid email' : '');
-                    emailButton.classList.remove('email-valid');
-                }
+            if (isValidEmail(inputValue)) {
+                emailButton.style.opacity = '1';
+                emailButton.style.pointerEvents = 'auto';
+                emailField.setCustomValidity('');
+                emailButton.classList.add('email-valid');
+            } else {
+                emailButton.style.opacity = '0.75';
+                emailButton.style.pointerEvents = 'none';
+                emailField.setCustomValidity(inputValue ? 'Please enter a valid email' : '');
+                emailButton.classList.remove('email-valid');
+            }
+        });
+
+
+        emailButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            const email = emailField?.value.trim() || '';
+            if (isValidEmail(email)) {
+                emailSignUpForm.style.display = 'none';
+                emailSignUpSuccess.style.display = 'flex';
+            } else {
+                emailField.setCustomValidity('Please enter a valid email');
+                emailField.reportValidity();
             }
         });
     }
