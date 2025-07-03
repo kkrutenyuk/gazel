@@ -302,13 +302,28 @@ function addMailSignUpLogic() {
         emailButton.addEventListener('click', function (e) {
             e.preventDefault();
             const email = emailField?.value.trim() || '';
-            if (isValidEmail(email)) {
-                emailSignUpForm.style.display = 'none';
-                emailSignUpSuccess.style.display = 'flex';
-            } else {
+            if (!isValidEmail(email)) {
                 emailField.setCustomValidity('Please enter a valid email');
                 emailField.reportValidity();
+                return;
             }
+            const mailchimpURL = 'https://jamm.us10.list-manage.com/subscribe/post?u=2ac9f7f4262d1d29bba64a2c4&id=b37fcae870&f_id=00704fe4f0';
+
+            const formData = new FormData();
+            formData.append('EMAIL', email);
+            formData.append('b_2ac9f7f4262d1d29bba64a2c4_b37fcae870', '');
+
+            fetch(mailchimpURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: formData
+            }).then(() => {
+                emailSignUpForm.style.display = 'none';
+                emailSignUpSuccess.style.display = 'flex';
+            }).catch(err => {
+                console.error('Mailchimp error:', err);
+                navigateToError();
+            });
         });
 
 
@@ -697,4 +712,3 @@ function getPreferredAgeGroupByJsonKey(preferredAgeKey) {
 function navigateToError() {
     window.location.href = '/error';
 }
-
